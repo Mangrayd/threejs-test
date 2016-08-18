@@ -1,254 +1,215 @@
 'use strict';
 ###Class APP###
+
+### CONSTRUCTOR ###
 cApp = () ->
-	this.cubeNum = 500
-	this.cubeSide = 10
-	this.sphereRadius = 10
-	return
-cApp.prototype.GetPropValue = (prop) ->
-	return this[prop]
-cApp.prototype.SetPropValue = (prop,value) ->
-	this[prop] = value
-	return
-cApp.prototype.Run = () ->
-	i = 0
-	while i < this.cubeNum
-		Cube = new cCube()
-		Cube.Create(0,0,0)
-		console.log Cube.x
-		console.log Cube.y
-		console.log Cube.z
-		i++
+	@cube = new THREE.Object3D()
+	@cubeNum = 10000
+	@cubeSide = 10
+	@cubeCoords = {
+		1:{ 1:{x:@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2}, 2:{x:@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2} },
+		2:{ 1:{x:@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2}, 2:{x:-@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2} },
+		3:{ 1:{x:@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2}, 2:{x:@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2} },
 
-###Class Cube###
-cCube = () ->
-	this.x = undefined
-	this.y = undefined
-	this.z = undefined
-	return
-cCube.prototype.Create = (x,y,z) ->
-	this.x = x
-	this.y = y
-	this.z = z
-	console.log 'created'
-	return
-App = new cApp()
-##window.onload = App.Run();
+		4:{ 1:{x:-@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2}, 2:{x:@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2} },
+		5:{ 1:{x:-@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2}, 2:{x:-@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2} },
+		6:{ 1:{x:-@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2}, 2:{x:-@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2} }
 
+		7:{ 1:{x:-@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2}, 2:{x:@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2} },
+		8:{ 1:{x:-@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2}, 2:{x:-@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2} },
+		9:{ 1:{x:-@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2}, 2:{x:-@cubeSide/2,y:@cubeSide/2,z:-@cubeSide/2} }
 
+		10:{ 1:{x:@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2}, 2:{x:-@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2} },
+		11:{ 1:{x:@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2}, 2:{x:@cubeSide/2,y:@cubeSide/2,z:@cubeSide/2} },
+		12:{ 1:{x:@cubeSide/2,y:-@cubeSide/2,z:@cubeSide/2}, 2:{x:@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2} }
+	}
+	@cubeClone = undefined
 
-
-
-
-scene = undefined
-camera = undefined
-renderer = undefined
-
-num = 10
-length = 10
-radius = 0.5
-
-
-x = y = z = undefined
-
-arrPoints = []
-arrLines = []
-
-orbit = undefined
-plane = undefined
-selectedObject = undefined
-
-projector = new THREE.Projector()
-offset = new THREE.Vector3()
-
-init = ()->
-
-	scene = new THREE.Scene()
-
-	plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 18, 18 ), new THREE.MeshBasicMaterial() )
-	plane.visible = false
-	scene.add( plane )
-
-
-	cubeGeometry = new THREE.BoxGeometry(10, 10, 10);
-	##cubeMaterial = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
-	cubeMaterial = new THREE.MeshLambertMaterial({});
-	cubeMaterial.transparent = true;
-	cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-	cube.visible = false
-	console.log cube
-	scene.add(cube);
-
-	camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000)
-	camera.position.x = 100
-	camera.position.y = 90
-	camera.position.z = 90
-	camera.lookAt(scene.position)
-
-	renderer = new THREE.WebGLRenderer()
-	renderer.setClearColor(new THREE.Color(0xEEEEEE))
-	renderer.setSize(window.innerWidth, window.innerHeight)
-
-	axes = new THREE.AxisHelper( 100 )
-	scene.add(axes)
-
-	##createElements()
-
-	document.getElementById("WebGL-output").appendChild(renderer.domElement)
-
-	window.addEventListener( 'resize', onWindowResize, false )
-
-	orbit = new THREE.OrbitControls(camera)
-
-	render()
-	return
-
-createElements = ()->
-	k = 1
-	while k <= num
-		###
-		x = Math.random() * (length + num + 30)
-		y = Math.random() * (length + num + 30)
-		z = Math.random() * (length + num + 30)
-		###
-		x = 0
-		y = 0
-		z = 0
-		createBox x, y, z
-
-		createBox(x, y, z+(length*k*1.5))
-		createBox(x, y, -(z+(length*k*1.5)))
-
-		###createBox(-x, -y, -z)
-		createBox(x, -y, -z)
-		createBox(-x, y, -z)
-		createBox(-x, -y, z)
-
-		createBox(x, y, -z)
-		createBox(x, -y, z)
-		createBox(-x, y, z)###
-		k++
-
-	i = 0
-	while i < arrLines.length
-		scene.add(arrLines[i])
-		i++
-
-	j = 0
-	while j < arrPoints.length
-		scene.add(arrPoints[j])
-		j++
-	return
-
-createBox = (x,y,z) ->
-
-	lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 })
-
-	lineGeometries = {
-
-		1:{ 1:{x:x+length/2,y:y+length/2,z:z-length/2}, 2:{x:x+length/2,y:y+length/2,z:z+length/2} },
-		2:{ 1:{x:x+length/2,y:y+length/2,z:z-length/2}, 2:{x:x-length/2,y:y+length/2,z:z-length/2} },
-		3:{ 1:{x:x+length/2,y:y+length/2,z:z-length/2}, 2:{x:x+length/2,y:y-length/2,z:z-length/2} },
-
-		4:{ 1:{x:x-length/2,y:y-length/2,z:z-length/2}, 2:{x:x+length/2,y:y-length/2,z:z-length/2} },
-		5:{ 1:{x:x-length/2,y:y-length/2,z:z-length/2}, 2:{x:x-length/2,y:y+length/2,z:z-length/2} },
-		6:{ 1:{x:x-length/2,y:y-length/2,z:z-length/2}, 2:{x:x-length/2,y:y-length/2,z:z+length/2} }
-
-		7:{ 1:{x:x-length/2,y:y+length/2,z:z+length/2}, 2:{x:x+length/2,y:y+length/2,z:z+length/2} },
-		8:{ 1:{x:x-length/2,y:y+length/2,z:z+length/2}, 2:{x:x-length/2,y:y-length/2,z:z+length/2} },
-		9:{ 1:{x:x-length/2,y:y+length/2,z:z+length/2}, 2:{x:x-length/2,y:y+length/2,z:z-length/2} }
-
-		10:{ 1:{x:x+length/2,y:y-length/2,z:z+length/2}, 2:{x:x-length/2,y:y-length/2,z:z+length/2} },
-		11:{ 1:{x:x+length/2,y:y-length/2,z:z+length/2}, 2:{x:x+length/2,y:y+length/2,z:z+length/2} },
-		12:{ 1:{x:x+length/2,y:y-length/2,z:z+length/2}, 2:{x:x+length/2,y:y-length/2,z:z-length/2} }
+	@sphereRadius = 1
+	@sphereClone = undefined
+	@spheres = []
+	@spheresCoords = {
+		1: {x:-@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2},
+		2: {x:+@cubeSide/2,y:+@cubeSide/2,z:+@cubeSide/2},
+		3: {x:+@cubeSide/2,y:-@cubeSide/2,z:-@cubeSide/2},
+		4: {x:-@cubeSide/2,y:+@cubeSide/2,z:-@cubeSide/2},
+		5: {x:-@cubeSide/2,y:-@cubeSide/2,z:+@cubeSide/2},
+		6: {x:+@cubeSide/2,y:+@cubeSide/2,z:-@cubeSide/2},
+		7: {x:-@cubeSide/2,y:+@cubeSide/2,z:+@cubeSide/2},
+		8: {x:+@cubeSide/2,y:-@cubeSide/2,z:+@cubeSide/2}
 	}
 
-	i = 1
-	while i <= 12
-		lineCoords = lineGeometries[i]
-		lineGeometry = new THREE.Geometry()
-		lineGeometry.vertices.push(
-			new THREE.Vector3( lineCoords[1].x, lineCoords[1].y, lineCoords[1].z ),
-			new THREE.Vector3( lineCoords[2].x, lineCoords[2].y, lineCoords[2].z )
-		)
-		line = new THREE.Line( lineGeometry, lineMaterial )
+	@arrSpheres = []
+	@arrLines = []
 
-		arrLines.push( line )
-		i++
-	createPoints(x,y,z)
-
-
-createPoints = (x,y,z)->
-
-	objPoint = {
-		1: {x:x-length/2,y:y-length/2,z:z-length/2,color:0xc0f515},
-		2: {x:x+length/2,y:y+length/2,z:z+length/2,color:0x8d6796},
-		3: {x:x+length/2,y:y-length/2,z:z-length/2,color:0xdd1600},
-		4: {x:x-length/2,y:y+length/2,z:z-length/2,color:0x1c1aa9},
-		5: {x:x-length/2,y:y-length/2,z:z+length/2,color:0x6e400a},
-		6: {x:x+length/2,y:y+length/2,z:z-length/2,color:0x5f2c4f},
-		7: {x:x-length/2,y:y+length/2,z:z+length/2,color:0x82d481},
-		8: {x:x+length/2,y:y-length/2,z:z+length/2,color:0x46173d}
-	};
-
-	pointGeometry = new THREE.SphereGeometry( radius )
-	i = 1
-	while i <= 8
-		pointMaterial = new THREE.MeshBasicMaterial( {color: objPoint[i].color} )
-
-		point = new THREE.Mesh( pointGeometry, pointMaterial )
-		point.position.x = objPoint[i].x
-		point.position.y = objPoint[i].y
-		point.position.z = objPoint[i].z
-
-		arrPoints.push(point)
-		i++
+	@scene = undefined
+	@camera = undefined
+	@renderer = undefined
+	@orbit = undefined
+	@plane = undefined
+	@selectedObject = undefined
+	@projector = new THREE.Projector()
+	@offset = new THREE.Vector3()
 
 	return
 
-document.onmousedown = (event)->
+### INITILIZATIONS ###
+cApp.prototype.PlaneInit = ()->
+	@plane = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000, 18, 18 ), new THREE.MeshBasicMaterial() )
+	@plane.visible = false
+	@scene.add( @plane )
+	return
+cApp.prototype.CameraInit = () ->
+	@camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 1000)
+	@camera.position.x = 100
+	@camera.position.y = 90
+	@camera.position.z = 90
+	@camera.lookAt(@scene.position)
+	return
+cApp.prototype.RenderInit = ()->
+	@renderer = new THREE.WebGLRenderer()
+	@renderer.setClearColor(new THREE.Color(0xEEEEEE))
+	@renderer.setSize(window.innerWidth, window.innerHeight)
+	return
+cApp.prototype.Rendering = ()->
+	@renderer.render(@scene, @camera)
+	@cube.position.needsUpdate = true
+	@orbit.update()
+	requestAnimationFrame(@Rendering.bind(@))
+	return
 
-	mouse_x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	mouse_y = -( event.clientY / window.innerHeight ) * 2 + 1;
+### EVENTS ###
+cApp.prototype.MouseDownEvent = (event)->
+	mouse_x = ( event.clientX / window.innerWidth ) * 2 - 1
+	mouse_y = -( event.clientY / window.innerHeight ) * 2 + 1
+	### convert mouse position to 3D ###
+	vector = new THREE.Vector3(mouse_x, mouse_y, 0.5)
+	vector.unproject(@camera)
+	### define the intersects ###
+	raycaster = new THREE.Raycaster(@camera.position, vector.sub(@camera.position).normalize())
+	intersects = raycaster.intersectObjects(@arrSpheres)
 
-	vector = new THREE.Vector3(mouse_x, mouse_y, 0.5);
-
-	vector.unproject(camera);
-
-	raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-
-	intersects = raycaster.intersectObjects(arrPoints);
-
+	### if intersects ###
 	if intersects.length > 0
 
-		orbit.enabled = false
-		selectedObject = intersects[0].object
-		position = selectedObject.position
+		@orbit.enabled = false
+		@selectedObject = intersects[0].object
+		position = @selectedObject.position
 
 		i = 0
-		while i < arrLines.length
-			j = 0
-			while j < 2
-				if position.x == arrLines[i].geometry.vertices[j].x && position.y == arrLines[i].geometry.vertices[j].y && position.z == arrLines[i].geometry.vertices[j].z
-					arrLines[i].material = selectedObject.material
-				j++
+		while i < @arrLines.length
+			## find lines in parent of selected obj
+			if @arrLines[i].parent.uuid == @selectedObject.parent.uuid
+				j = 0
+				while j < 2
+					if position.x == @arrLines[i].geometry.vertices[j].x && position.y == @arrLines[i].geometry.vertices[j].y && position.z == @arrLines[i].geometry.vertices[j].z
+						@arrLines[i].material = @selectedObject.material
+					j++
 			i++
 	return
+cApp.prototype.MouseUpEvent = ()->
+	@orbit.enabled = true
+	@selectedObject = null
+	return
+cApp.prototype.onWindowResize = ()->
+	@camera.aspect = window.innerWidth / window.innerHeight
+	@camera.updateProjectionMatrix()
+	@renderer.setSize( window.innerWidth, window.innerHeight )
+	return
 
+### CREATE OBJECTS ###
+cApp.prototype.CreateCube = () ->
+	i = 1
+	while i <= 12
+		@CreateCubeLines(i)
+		i++
+	##
+	j = 1
+	while j <= 8
+		@CreateCubeSpheres(j)
+		j++
+	return
+cApp.prototype.CreateCubeLines = (i) ->
+	lineCoords = @cubeCoords[i]
+	lineGeometry = new THREE.Geometry()
+	lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 })
+	lineGeometry.vertices.push(
+		new THREE.Vector3( lineCoords[1].x, lineCoords[1].y, lineCoords[1].z ),
+		new THREE.Vector3( lineCoords[2].x, lineCoords[2].y, lineCoords[2].z )
+	)
+	line = new THREE.Line( lineGeometry, lineMaterial )
+	@cube.add( line )
+
+	return
+cApp.prototype.CreateCubeSpheres = (j) ->
+	sphereGeometry = new THREE.SphereGeometry( @sphereRadius )
+	sphereMaterial = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff} )
+	sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
+
+	sphere.position.x = @spheresCoords[j].x
+	sphere.position.y = @spheresCoords[j].y
+	sphere.position.z = @spheresCoords[j].z
+
+	@cube.add( sphere )
+	##@arrSpheres[sphere.parent.uuid][j] = sphere
+
+	return
+cApp.prototype.AddCube = () ->
+	@cubeClone = @cube.clone()
+	@cubeClone.position.x = (Math.random()*Math.sqrt(@cubeNum)*@cubeSide) - (Math.sqrt(@cubeNum)*@cubeSide)/2
+	@cubeClone.position.y = (Math.random()*Math.sqrt(@cubeNum)*@cubeSide) - (Math.sqrt(@cubeNum)*@cubeSide)/2
+	@cubeClone.position.z = (Math.random()*Math.sqrt(@cubeNum)*@cubeSide) - (Math.sqrt(@cubeNum)*@cubeSide)/2
+
+	j = 0
+	while j <= 11
+		@arrLines.push( @cubeClone.children[j] )
+		j++
+
+	i = 12
+	while i <= 19
+		@arrSpheres.push( @cubeClone.children[i] )
+		i++
+	@scene.add( @cubeClone )
+	return
+
+## RUN THE PROJECT
+cApp.prototype.Run = () ->
+	console.info 'Project is running!'
+
+	self = @
+	@scene = new THREE.Scene()
+
+	@PlaneInit()
+	@CreateCube()
+
+	i = 0
+	while i<@cubeNum
+		@AddCube()
+		i++
+
+	@CameraInit()
+	@RenderInit()
+
+	axes = new THREE.AxisHelper( 100 )
+	@scene.add(axes)
+
+	window.addEventListener( 'resize', App.onWindowResize.bind(self), false )
+	document.getElementById("webgl").appendChild(@renderer.domElement)
+
+	@orbit = new THREE.OrbitControls(@camera)
+	@Rendering()
+
+	return
+
+################
+### APP start###
+################
+App = new cApp()
+window.onload = App.Run()
+
+document.onmousedown = (event)->
+	App.MouseDownEvent(event)
+	return
 document.onmouseup = ()->
-	orbit.enabled = true
-	selectedObject = null
-
-render = ()->
-	renderer.render(scene, camera)
-	orbit.update()
-	requestAnimationFrame(render)
+	App.MouseUpEvent()
 	return
-
-onWindowResize = () ->
-	camera.aspect = window.innerWidth / window.innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	return
-
-window.onload = init;
